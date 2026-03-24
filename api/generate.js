@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -10,115 +10,88 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({
-      success: false,
-      error: "POST only"
-    });
+    return res.status(405).json({ success: false, error: "POST only" });
   }
 
   try {
     const { prompt } = req.body || {};
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({
         success: false,
-        error: "Missing GEMINI_API_KEY in Vercel environment variables"
+        error: "Missing GROQ_API_KEY in Vercel environment variables"
       });
     }
 
     if (!prompt || !prompt.trim()) {
-      return res.status(400).json({
-        success: false,
-        error: "Missing prompt"
-      });
+      return res.status(400).json({ success: false, error: "Missing prompt" });
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const groq = new Groq({ apiKey });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      contents: `
-Create a production-ready Next.js website for this request:
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",   // ← excellent free coding model on Groq
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert Next.js developer. 
+Create a production-ready Next.js 14+ App Router website for the user's request.
 
-"${prompt}"
-
-Return ONLY file blocks in this exact format:
+Return ONLY file blocks in this exact format. No explanations, no markdown outside the files.
 
 File: package.json
 \`\`\`json
-{
-  "name": "site",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "dependencies": {
-    "next": "^14.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  }
-}
+{ ... }
 \`\`\`
 
 File: app/layout.tsx
 \`\`\`tsx
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
-}
+{ ... }
 \`\`\`
 
 File: app/page.tsx
 \`\`\`tsx
-export default function Home() {
-  return <main>Hello</main>;
-}
+{ ... }
 \`\`\`
 
-If needed, also include additional files such as:
-- app/globals.css
-- components/*
-- lib/*
-- public/*
-
-Rules:
-- Use Next.js App Router
-- Make the design modern and responsive
-- Keep the code production-ready
-- Do not write any explanation outside file blocks
-`
+Include any other needed files (app/globals.css, components, etc.).
+Use modern, responsive Tailwind design when possible.
+Output ONLY the file blocks.`
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      temperature: 0.7,
+      max_tokens: 8000
     });
 
-    const text = response.text || "";
+    const text = completion.choices[0]?.message?.content || "";
 
     const files = {};
-    const regex = /File:\s*([^\n]+)\n```(?:\w+)?\n([\s\S]*?)```/g;
+    const regex = /File:\s*([^\n]+)\n(?:```[\w]*\n)?([\s\S]*?)(?:```)?/g;
     let match;
 
     while ((match = regex.exec(text)) !== null) {
-      files[match[1].trim()] = match[2].trim();
+      const path = match[1].trim();
+      let content = match[2].trim();
+      content = content.replace(/^```[\w]*\n/, '').replace(/\n```$/, '');
+      if (path && content) files[path] = content;
     }
 
     if (Object.keys(files).length === 0) {
       files["response.txt"] = text;
     }
 
-    return res.status(200).json({
-      success: true,
-      files
-    });
+    return res.status(200).json({ success: true, files });
+
   } catch (error) {
     console.error("API /api/generate failed:", error);
-
     return res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Unknown server error"
     });
   }
-}
+  }
