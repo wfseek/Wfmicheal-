@@ -8,6 +8,6 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
-    "@google/genai": "latest"
+    "groq-sdk": "latest"
   }
 }
