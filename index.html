@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Website Builder</title>
+  <style>
+    body { font-family: system-ui; max-width: 600px; margin: 50px auto; padding: 20px; }
+    input, textarea, button { width: 100%; padding: 10px; margin: 10px 0; }
+    button { background: #0070f3; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>🤖 AI Website Builder</h1>
+  <input type="password" id="apiKey" placeholder="Gemini API Key">
+  <textarea id="prompt" rows="4" placeholder="Describe your website..."></textarea>
+  <button onclick="generate()">Build Website</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function generate() {
+      const btn = document.querySelector('button');
+      btn.textContent = 'Building...';
+      
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          apiKey: document.getElementById('apiKey').value,
+          prompt: document.getElementById('prompt').value
+        })
+      });
+      
+      const data = await res.json();
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+      btn.textContent = 'Build Website';
+    }
+  </script>
+</body>
+</html>
