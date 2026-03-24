@@ -16,7 +16,6 @@
       overflow-x: hidden;
     }
 
-    /* Animated Background */
     .bg-gradient {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -33,7 +32,6 @@
       50% { opacity: 0.8; transform: scale(1.1); }
     }
 
-    /* Navigation */
     nav {
       display: flex;
       justify-content: space-between;
@@ -60,7 +58,6 @@
       -webkit-text-fill-color: initial;
     }
 
-    /* Main Container */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -72,7 +69,6 @@
       min-height: calc(100vh - 100px);
     }
 
-    /* Left Side - Text */
     .hero-text {
       animation: slideUp 0.8s ease-out;
     }
@@ -159,7 +155,6 @@
       color: #667eea;
     }
 
-    /* Right Side - Form */
     .form-card {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.1);
@@ -270,12 +265,11 @@
       transform: none;
     }
 
-    /* Loading State */
     .loading-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.95);
       z-index: 100;
       flex-direction: column;
       align-items: center;
@@ -312,54 +306,28 @@
       font-size: 16px;
     }
 
-    .progress-bar {
-      width: 300px;
-      height: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      margin-top: 32px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-      width: 0%;
-      transition: width 0.3s;
-      animation: progress 3s ease-in-out infinite;
-    }
-
-    @keyframes progress {
-      0% { width: 0%; }
-      50% { width: 70%; }
-      100% { width: 100%; }
-    }
-
-    /* Result Modal */
     .result-modal {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0,0,0,0.95);
       z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      padding: 40px 20px;
+      overflow-y: auto;
     }
 
     .result-modal.active {
-      display: flex;
+      display: block;
     }
 
-    .result-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px;
-      padding: 48px;
-      max-width: 600px;
-      width: 100%;
+    .result-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .result-header {
       text-align: center;
-      backdrop-filter: blur(20px);
+      margin-bottom: 40px;
     }
 
     .result-icon {
@@ -383,50 +351,129 @@
       color: #ef4444;
     }
 
-    .result-card h2 {
+    .result-header h2 {
       font-size: 32px;
       margin-bottom: 16px;
     }
 
-    .result-card p {
+    .result-header p {
       color: rgba(255,255,255,0.6);
-      margin-bottom: 32px;
       line-height: 1.6;
     }
 
-    .url-box {
-      background: rgba(0,0,0,0.3);
+    .file-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .file-card {
+      background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 16px;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .file-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .file-name {
       font-family: monospace;
-      font-size: 18px;
+      font-size: 14px;
       color: #667eea;
-      margin-bottom: 24px;
-      word-break: break-all;
+    }
+
+    .copy-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .copy-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .copy-btn.copied {
+      background: #10b981;
+    }
+
+    .file-content {
+      padding: 20px;
+      overflow-x: auto;
+    }
+
+    .file-content pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.9);
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
 
     .btn-group {
       display: flex;
       gap: 12px;
       justify-content: center;
+      margin-top: 40px;
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
     }
 
     .btn-secondary {
       background: rgba(255,255,255,0.1);
-      padding: 12px 24px;
-      border-radius: 8px;
       color: white;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
     .btn-secondary:hover {
       background: rgba(255,255,255,0.2);
     }
 
-    /* Mobile Responsive */
+    .error-message {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 16px;
+      border-radius: 12px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+
     @media (max-width: 968px) {
       .container {
         grid-template-columns: 1fr;
@@ -450,18 +497,18 @@
     <div class="logo">Wfseek</div>
   </nav>
 
-  <div class="container">
+  <div class="container" id="mainContainer">
     <div class="hero-text">
       <div class="badge">AI-Powered Website Builder</div>
       <h1>Build websites with <span>AI</span></h1>
       <p class="subtitle">
-        Describe your dream website in plain English. Our AI agents will code, test, 
-        and deploy it automatically. No coding required.
+        Describe your dream website in plain English. Our AI generates production-ready 
+        Next.js code instantly. Copy, customize, and deploy.
       </p>
       
       <div class="features">
-        <div class="feature">Auto-testing</div>
-        <div class="feature">Instant Deploy</div>
+        <div class="feature">Auto-generated Code</div>
+        <div class="feature">Next.js + Tailwind</div>
         <div class="feature">Production Ready</div>
       </div>
     </div>
@@ -469,19 +516,19 @@
     <div class="form-card">
       <div class="form-header">
         <h2>Start Building</h2>
-        <p>Enter your details below to generate your website</p>
+        <p>Enter your details to generate your website</p>
       </div>
 
       <form id="buildForm">
         <div class="input-group">
           <label>Gemini API Key</label>
           <input type="password" id="apiKey" placeholder="AIzaSy..." required>
-          <div class="input-hint">Get yours from aistudio.google.com</div>
+          <div class="input-hint">Get yours from aistudio.google.com/app/apikey</div>
         </div>
         
         <div class="input-group">
           <label>Website Description</label>
-          <textarea id="prompt" placeholder="A modern portfolio website for a photographer with dark theme, gallery section, and contact form..." required></textarea>
+          <textarea id="prompt" placeholder="A modern portfolio website for a photographer with dark theme, gallery grid, and contact form..." required></textarea>
         </div>
         
         <button type="submit" id="submitBtn">
@@ -495,22 +542,28 @@
   <div class="loading-overlay" id="loading">
     <div class="loader"></div>
     <div class="loading-text">Building your website...</div>
-    <div class="loading-subtext">AI agents are coding, testing, and optimizing</div>
-    <div class="progress-bar">
-      <div class="progress-fill"></div>
-    </div>
+    <div class="loading-subtext">AI is generating code</div>
   </div>
 
   <!-- Result Modal -->
   <div class="result-modal" id="resultModal">
-    <div class="result-card" id="resultCard">
-      <div class="result-icon" id="resultIcon">🎉</div>
-      <h2 id="resultTitle">Success!</h2>
-      <p id="resultMessage">Your website is live</p>
-      <div class="url-box" id="resultUrl" style="display: none;"></div>
+    <div class="result-container">
+      <div class="result-header" id="resultHeader">
+        <div class="result-icon" id="resultIcon">🎉</div>
+        <h2 id="resultTitle">Success!</h2>
+        <p id="resultMessage">Your website code is ready</p>
+        <div id="errorContainer"></div>
+      </div>
+
+      <div class="file-list" id="fileList"></div>
+
       <div class="btn-group">
-        <a href="#" id="resultLink" class="btn-secondary" target="_blank">Visit Website</a>
-        <a href="#" class="btn-secondary" onclick="location.reload()">Build Another</a>
+        <button class="btn-primary" onclick="downloadAll()">
+          📥 Download All Files
+        </button>
+        <button class="btn-secondary" onclick="location.reload()">
+          🔄 Build Another
+        </button>
       </div>
     </div>
   </div>
@@ -519,12 +572,11 @@
     const form = document.getElementById('buildForm');
     const loading = document.getElementById('loading');
     const resultModal = document.getElementById('resultModal');
-    const resultIcon = document.getElementById('resultIcon');
-    const resultTitle = document.getElementById('resultTitle');
-    const resultMessage = document.getElementById('resultMessage');
-    const resultUrl = document.getElementById('resultUrl');
-    const resultLink = document.getElementById('resultLink');
+    const mainContainer = document.getElementById('mainContainer');
+    const fileList = document.getElementById('fileList');
     const submitBtn = document.getElementById('submitBtn');
+    
+    let generatedFiles = {};
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -533,6 +585,7 @@
       const prompt = document.getElementById('prompt').value;
       
       submitBtn.disabled = true;
+      mainContainer.style.display = 'none';
       loading.classList.add('active');
       
       try {
@@ -548,40 +601,107 @@
         resultModal.classList.add('active');
         
         if (data.success) {
-          resultIcon.textContent = '🎉';
-          resultIcon.className = 'result-icon success';
-          resultTitle.textContent = 'Website Live!';
-          resultMessage.textContent = 'Your website has been generated and deployed successfully.';
-          
-          if (data.url) {
-            resultUrl.style.display = 'block';
-            resultUrl.textContent = data.url;
-            resultLink.href = data.url;
-            resultLink.textContent = 'Visit Website';
-          } else {
-            resultUrl.style.display = 'none';
-            resultLink.textContent = 'Download Files';
-            resultLink.href = data.downloadUrl || '#';
-          }
+          generatedFiles = data.files;
+          showSuccess(data.files);
         } else {
-          throw new Error(data.error || 'Build failed');
+          showError(data.error || 'Unknown error occurred');
         }
         
       } catch (error) {
         loading.classList.remove('active');
         resultModal.classList.add('active');
-        
-        resultIcon.textContent = '❌';
-        resultIcon.className = 'result-icon error';
-        resultTitle.textContent = 'Build Failed';
-        resultMessage.textContent = error.message;
-        resultUrl.style.display = 'none';
-        resultLink.textContent = 'Try Again';
-        resultLink.href = '#';
-        resultLink.onclick = () => location.reload();
+        showError('Network error: ' + error.message);
       }
     });
+
+    function showSuccess(files) {
+      document.getElementById('resultIcon').textContent = '🎉';
+      document.getElementById('resultIcon').className = 'result-icon success';
+      document.getElementById('resultTitle').textContent = 'Website Generated!';
+      document.getElementById('resultMessage').textContent = 
+        `Copy the code below into a new folder, then run: npm install && npm run dev`;
+      
+      fileList.innerHTML = '';
+      
+      Object.entries(files).forEach(([filepath, content]) => {
+        const card = document.createElement('div');
+        card.className = 'file-card';
+        
+        const header = document.createElement('div');
+        header.className = 'file-header';
+        
+        const filename = document.createElement('span');
+        filename.className = 'file-name';
+        filename.textContent = filepath;
+        
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.textContent = 'Copy';
+        copyBtn.onclick = () => copyToClipboard(content, copyBtn);
+        
+        header.appendChild(filename);
+        header.appendChild(copyBtn);
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'file-content';
+        
+        const pre = document.createElement('pre');
+        pre.textContent = content;
+        
+        contentDiv.appendChild(pre);
+        card.appendChild(header);
+        card.appendChild(contentDiv);
+        fileList.appendChild(card);
+      });
+    }
+
+    function showError(message) {
+      document.getElementById('resultIcon').textContent = '❌';
+      document.getElementById('resultIcon').className = 'result-icon error';
+      document.getElementById('resultTitle').textContent = 'Build Failed';
+      document.getElementById('resultMessage').textContent = 'Something went wrong';
+      
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      
+      document.getElementById('errorContainer').innerHTML = '';
+      document.getElementById('errorContainer').appendChild(errorDiv);
+      
+      fileList.innerHTML = '';
+    }
+
+    async function copyToClipboard(text, btn) {
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      } catch (err) {
+        alert('Failed to copy. Please select and copy manually.');
+      }
+    }
+
+    function downloadAll() {
+      let zipContent = '';
+      Object.entries(generatedFiles).forEach(([path, content]) => {
+        zipContent += `\n\n=== ${path} ===\n\n${content}`;
+      });
+      
+      const blob = new Blob([zipContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wfseek-website.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   </script>
 </body>
-  </html>
-        
+            </html>
+  
