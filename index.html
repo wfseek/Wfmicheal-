@@ -1,38 +1,587 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Website Builder</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wfseek - AI Website Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui; max-width: 600px; margin: 50px auto; padding: 20px; }
-    input, textarea, button { width: 100%; padding: 10px; margin: 10px 0; }
-    button { background: #0070f3; color: white; border: none; cursor: pointer; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0a;
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    .bg-gradient {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+      z-index: -1;
+      animation: pulse 10s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.1); }
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 48px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo::before {
+      content: '⚡';
+      font-size: 32px;
+      -webkit-text-fill-color: initial;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      min-height: calc(100vh - 100px);
+    }
+
+    /* Left Side - Text */
+    .hero-text {
+      animation: slideUp 0.8s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: blink 2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+      margin-bottom: 32px;
+      max-width: 480px;
+    }
+
+    .features {
+      display: flex;
+      gap: 24px;
+      margin-top: 40px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .feature::before {
+      content: '✓';
+      width: 20px;
+      height: 20px;
+      background: rgba(102, 126, 234, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #667eea;
+    }
+
+    /* Right Side - Form */
+    .form-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 40px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+      animation: slideUp 0.8s ease-out 0.2s backwards;
+    }
+
+    .form-header {
+      margin-bottom: 32px;
+    }
+
+    .form-header h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .form-header p {
+      color: rgba(255,255,255,0.5);
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      font-family: inherit;
+      transition: all 0.3s;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px -10px rgba(102, 126, 234, 0.5);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Loading State */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .loader {
+      width: 80px;
+      height: 80px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 32px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .loading-subtext {
+      color: rgba(255,255,255,0.5);
+      font-size: 16px;
+    }
+
+    .progress-bar {
+      width: 300px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      margin-top: 32px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%;
+      transition: width 0.3s;
+      animation: progress 3s ease-in-out infinite;
+    }
+
+    @keyframes progress {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    /* Result Modal */
+    .result-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .result-modal.active {
+      display: flex;
+    }
+
+    .result-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(20px);
+    }
+
+    .result-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 24px;
+    }
+
+    .result-icon.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+
+    .result-icon.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .result-card h2 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .result-card p {
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .url-box {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 18px;
+      color: #667eea;
+      margin-bottom: 24px;
+      word-break: break-all;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      padding: 12px 24px;
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 968px) {
+      .container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      
+      h1 { font-size: 40px; }
+      
+      nav { padding: 20px 24px; }
+      
+      .form-card { padding: 24px; }
+      
+      .features { flex-direction: column; gap: 12px; }
+    }
   </style>
 </head>
 <body>
-  <h1>🤖 AI Website Builder</h1>
-  <input type="password" id="apiKey" placeholder="Gemini API Key">
-  <textarea id="prompt" rows="4" placeholder="Describe your website..."></textarea>
-  <button onclick="generate()">Build Website</button>
-  <pre id="result"></pre>
+  <div class="bg-gradient"></div>
+  
+  <nav>
+    <div class="logo">Wfseek</div>
+  </nav>
+
+  <div class="container">
+    <div class="hero-text">
+      <div class="badge">AI-Powered Website Builder</div>
+      <h1>Build websites with <span>AI</span></h1>
+      <p class="subtitle">
+        Describe your dream website in plain English. Our AI agents will code, test, 
+        and deploy it automatically. No coding required.
+      </p>
+      
+      <div class="features">
+        <div class="feature">Auto-testing</div>
+        <div class="feature">Instant Deploy</div>
+        <div class="feature">Production Ready</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-header">
+        <h2>Start Building</h2>
+        <p>Enter your details below to generate your website</p>
+      </div>
+
+      <form id="buildForm">
+        <div class="input-group">
+          <label>Gemini API Key</label>
+          <input type="password" id="apiKey" placeholder="AIzaSy..." required>
+          <div class="input-hint">Get yours from aistudio.google.com</div>
+        </div>
+        
+        <div class="input-group">
+          <label>Website Description</label>
+          <textarea id="prompt" placeholder="A modern portfolio website for a photographer with dark theme, gallery section, and contact form..." required></textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn">
+          ⚡ Generate Website
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading">
+    <div class="loader"></div>
+    <div class="loading-text">Building your website...</div>
+    <div class="loading-subtext">AI agents are coding, testing, and optimizing</div>
+    <div class="progress-bar">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Result Modal -->
+  <div class="result-modal" id="resultModal">
+    <div class="result-card" id="resultCard">
+      <div class="result-icon" id="resultIcon">🎉</div>
+      <h2 id="resultTitle">Success!</h2>
+      <p id="resultMessage">Your website is live</p>
+      <div class="url-box" id="resultUrl" style="display: none;"></div>
+      <div class="btn-group">
+        <a href="#" id="resultLink" class="btn-secondary" target="_blank">Visit Website</a>
+        <a href="#" class="btn-secondary" onclick="location.reload()">Build Another</a>
+      </div>
+    </div>
+  </div>
 
   <script>
-    async function generate() {
-      const btn = document.querySelector('button');
-      btn.textContent = 'Building...';
+    const form = document.getElementById('buildForm');
+    const loading = document.getElementById('loading');
+    const resultModal = document.getElementById('resultModal');
+    const resultIcon = document.getElementById('resultIcon');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+    const resultUrl = document.getElementById('resultUrl');
+    const resultLink = document.getElementById('resultLink');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
       
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          apiKey: document.getElementById('apiKey').value,
-          prompt: document.getElementById('prompt').value
-        })
-      });
+      const apiKey = document.getElementById('apiKey').value;
+      const prompt = document.getElementById('prompt').value;
       
-      const data = await res.json();
-      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
-      btn.textContent = 'Build Website';
-    }
+      submitBtn.disabled = true;
+      loading.classList.add('active');
+      
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, prompt })
+        });
+        
+        const data = await response.json();
+        
+        loading.classList.remove('active');
+        resultModal.classList.add('active');
+        
+        if (data.success) {
+          resultIcon.textContent = '🎉';
+          resultIcon.className = 'result-icon success';
+          resultTitle.textContent = 'Website Live!';
+          resultMessage.textContent = 'Your website has been generated and deployed successfully.';
+          
+          if (data.url) {
+            resultUrl.style.display = 'block';
+            resultUrl.textContent = data.url;
+            resultLink.href = data.url;
+            resultLink.textContent = 'Visit Website';
+          } else {
+            resultUrl.style.display = 'none';
+            resultLink.textContent = 'Download Files';
+            resultLink.href = data.downloadUrl || '#';
+          }
+        } else {
+          throw new Error(data.error || 'Build failed');
+        }
+        
+      } catch (error) {
+        loading.classList.remove('active');
+        resultModal.classList.add('active');
+        
+        resultIcon.textContent = '❌';
+        resultIcon.className = 'result-icon error';
+        resultTitle.textContent = 'Build Failed';
+        resultMessage.textContent = error.message;
+        resultUrl.style.display = 'none';
+        resultLink.textContent = 'Try Again';
+        resultLink.href = '#';
+        resultLink.onclick = () => location.reload();
+      }
+    });
   </script>
 </body>
-</html>
+  </html>
+        
