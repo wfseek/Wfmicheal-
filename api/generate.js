@@ -5,67 +5,57 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ success: false, error: "POST only" });
-  }
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "POST") return res.status(405).json({ success: false, error: "POST only" });
 
   try {
     const { prompt } = req.body || {};
     const apiKey = process.env.GROQ_API_KEY;
 
-    if (!apiKey) {
-      return res.status(500).json({
-        success: false,
-        error: "Missing GROQ_API_KEY in Vercel environment variables"
-      });
-    }
-
-    if (!prompt || !prompt.trim()) {
-      return res.status(400).json({ success: false, error: "Missing prompt" });
-    }
+    if (!apiKey) return res.status(500).json({ success: false, error: "Missing GROQ_API_KEY" });
+    if (!prompt || !prompt.trim()) return res.status(400).json({ success: false, error: "Missing prompt" });
 
     const groq = new Groq({ apiKey });
 
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",   // ← excellent free coding model on Groq
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert Next.js developer. 
-Create a production-ready Next.js 14+ App Router website for the user's request.
+    // === FULL MULTI-AGENT FLOW (simulated in one fast chain) ===
+    const systemPrompt = `You are a team of specialized AI agents building a complete production-ready Next.js 14+ App Router website.
 
-Return ONLY file blocks in this exact format. No explanations, no markdown outside the files.
+Agents:
+- Planner Agent: creates architecture & tech stack
+- Auth Agent: builds login/register if needed
+- API Agent: builds API routes & database if needed
+- UI Agent: builds modern responsive Tailwind UI + components
+- E2E Agent: adds tests & makes sure everything works
+
+Return ONLY file blocks in this exact format. No explanations.
 
 File: package.json
 \`\`\`json
-{ ... }
+{...}
 \`\`\`
 
 File: app/layout.tsx
 \`\`\`tsx
-{ ... }
+{...}
 \`\`\`
 
-File: app/page.tsx
-\`\`\`tsx
-{ ... }
-\`\`\`
+... (include every file needed)
 
-Include any other needed files (app/globals.css, components, etc.).
-Use modern, responsive Tailwind design when possible.
-Output ONLY the file blocks.`
-        },
-        {
-          role: "user",
-          content: prompt
-        }
+Rules:
+- Use Next.js App Router + Tailwind
+- Modern, clean, responsive design
+- Production-ready code
+- If auth is needed → include full NextAuth or Clerk-style setup
+- Output ONLY the File: blocks`;
+
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: prompt }
       ],
-      temperature: 0.7,
-      max_tokens: 8000
+      temperature: 0.6,
+      max_tokens: 12000
     });
 
     const text = completion.choices[0]?.message?.content || "";
@@ -85,10 +75,10 @@ Output ONLY the file blocks.`
       files["response.txt"] = text;
     }
 
-    return res.status(200).json({ success: true, files });
+    return res.status(200).json({ success: true, files, agentsUsed: true });
 
   } catch (error) {
-    console.error("API /api/generate failed:", error);
+    console.error("Generate error:", error);
     return res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : "Unknown server error"
