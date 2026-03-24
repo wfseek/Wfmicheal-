@@ -1,19 +1,13 @@
 {
   "name": "wfseek",
   "version": "1.0.0",
-  "description": "AI Website Builder - Build websites with AI agents",
   "type": "module",
   "scripts": {
     "dev": "vercel dev",
-    "deploy": "vercel --prod",
-    "build": "echo 'Static site - no build needed'"
+    "deploy": "vercel --prod"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "archiver": "^6.0.1",
     "fs-extra": "^11.2.0"
-  },
-  "engines": {
-    "node": "18.x"
   }
 }
