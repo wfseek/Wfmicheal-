@@ -3,13 +3,16 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export default async function handler(req, res) {
   console.log('API hit:', req.method);
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'POST only' });
-  }
-
   try {
-    const { prompt } = req.body || {};
-    console.log('Prompt:', prompt);
+    console.log('Before reading body');
+    console.log('req.body is:', req.body);
+
+    const prompt = req.body?.prompt;
+    console.log('Prompt value:', prompt);
+
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'POST only' });
+    }
 
     if (!prompt) {
       return res.status(400).json({ error: 'Missing prompt' });
@@ -23,9 +26,7 @@ export default async function handler(req, res) {
     }
 
     const gemini = new GoogleGenerativeAI(apiKey);
-    const model = gemini.getGenerativeModel({
-      model: 'gemini-1.5-pro-latest'
-    });
+    const model = gemini.getGenerativeModel({ model: 'gemini-1.5-pro-latest' });
 
     console.log('Calling Gemini...');
 
@@ -38,14 +39,12 @@ export default async function handler(req, res) {
       success: true,
       text
     });
-
   } catch (error) {
     console.error('ERROR:', error);
-
     return res.status(500).json({
       success: false,
       error: error.message,
       stack: error.stack
     });
   }
-}
+      }
