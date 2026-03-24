@@ -1,54 +1,76 @@
+import { GoogleGenAI } from "@google/genai";
+
 export default async function handler(req, res) {
-  console.log('API hit:', req.method);
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "POST only" });
+  }
 
   try {
-    // ✅ Import inside function (prevents crash)
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-    console.log('Module loaded');
-
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'POST only' });
-    }
-
     const { prompt } = req.body || {};
-    console.log('Prompt:', prompt);
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(500).json({ error: "Missing server API key" });
+    }
 
     if (!prompt) {
-      return res.status(400).json({ error: 'Missing prompt' });
+      return res.status(400).json({ error: "Missing prompt" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    console.log('API key exists:', !!apiKey);
-
-    if (!apiKey) {
-      return res.status(500).json({ error: 'Missing GEMINI_API_KEY' });
-    }
-
-    const gemini = new GoogleGenerativeAI(apiKey);
-    const model = gemini.getGenerativeModel({
-      model: 'gemini-1.5-pro-latest'
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
     });
 
-    console.log('Calling Gemini...');
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-pro",
+      contents: `
+Create a Next.js website for: "${prompt}"
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+Return files in this exact format:
 
-    console.log('Success');
+File: package.json
+\`\`\`json
+{ "name": "site", "dependencies": { "next": "14", "react": "^18", "react-dom": "^18" } }
+\`\`\`
+
+File: app/page.tsx
+\`\`\`tsx
+export default function Home() { return <div>Hello</div>; }
+\`\`\`
+`,
+    });
+
+    const text = response.text || "";
+
+    const files = {};
+    const regex = /File:\s*([^\n]+)\n```(?:\w+)?\n([\s\S]*?)```/g;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+      files[match[1].trim()] = match[2].trim();
+    }
+
+    if (Object.keys(files).length === 0) {
+      files["response.txt"] = text;
+    }
 
     return res.status(200).json({
       success: true,
-      text
+      files,
     });
-
   } catch (error) {
-    console.error('ERROR:', error);
+    console.error("API /api/generate failed:", error);
 
     return res.status(500).json({
       success: false,
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 }
