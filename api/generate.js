@@ -17,36 +17,24 @@ export default async function handler(req, res) {
 
     const groq = new Groq({ apiKey });
 
-    // === FULL MULTI-AGENT FLOW (simulated in one fast chain) ===
-    const systemPrompt = `You are a team of specialized AI agents building a complete production-ready Next.js 14+ App Router website.
+    const systemPrompt = `You are a team of expert agents building a COMPLETE production-ready Next.js 14+ website.
 
-Agents:
-- Planner Agent: creates architecture & tech stack
-- Auth Agent: builds login/register if needed
-- API Agent: builds API routes & database if needed
-- UI Agent: builds modern responsive Tailwind UI + components
-- E2E Agent: adds tests & makes sure everything works
-
-Return ONLY file blocks in this exact format. No explanations.
+STRICT RULES — NEVER BREAK THESE:
+- Use ONLY App Router (app/ folder). NEVER create pages/ folder or pages/api/.
+- NextAuth must be in app/api/auth/[...nextauth]/route.ts (Route Handler).
+- Include next.config.js, postcss.config.js, tailwind.config.js, prisma/schema.prisma, .env.example.
+- Add "prisma generate && prisma db push" to the build script in package.json.
+- All components must be in app/components/ or components/ (no pages/).
+- Return ONLY clean File: blocks. No other text.
 
 File: package.json
 \`\`\`json
 {...}
 \`\`\`
 
-File: app/layout.tsx
-\`\`\`tsx
-{...}
-\`\`\`
+... (all other files)
 
-... (include every file needed)
-
-Rules:
-- Use Next.js App Router + Tailwind
-- Modern, clean, responsive design
-- Production-ready code
-- If auth is needed → include full NextAuth or Clerk-style setup
-- Output ONLY the File: blocks`;
+Output ONLY File: blocks.`;
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
@@ -54,8 +42,8 @@ Rules:
         { role: "system", content: systemPrompt },
         { role: "user", content: prompt }
       ],
-      temperature: 0.6,
-      max_tokens: 12000
+      temperature: 0.5,
+      max_tokens: 15000
     });
 
     const text = completion.choices[0]?.message?.content || "";
@@ -71,17 +59,12 @@ Rules:
       if (path && content) files[path] = content;
     }
 
-    if (Object.keys(files).length === 0) {
-      files["response.txt"] = text;
-    }
+    if (Object.keys(files).length === 0) files["response.txt"] = text;
 
-    return res.status(200).json({ success: true, files, agentsUsed: true });
+    return res.status(200).json({ success: true, files });
 
   } catch (error) {
     console.error("Generate error:", error);
-    return res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown server error"
-    });
+    return res.status(500).json({ success: false, error: error.message || "Unknown error" });
   }
-  }
+      }
