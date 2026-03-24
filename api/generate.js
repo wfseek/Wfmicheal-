@@ -3,51 +3,49 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 export default async function handler(req, res) {
   console.log('API hit:', req.method);
 
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'POST only' });
+  }
+
   try {
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'POST only' });
-    }
+    const { prompt } = req.body || {};
+    console.log('Prompt:', prompt);
 
-    const body =
-      typeof req.body === 'string'
-        ? JSON.parse(req.body || '{}')
-        : (req.body || {});
-
-    console.log('Body received:', body);
-
-    const prompt = body.prompt;
     if (!prompt) {
       return res.status(400).json({ error: 'Missing prompt' });
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    console.log('API key exists:', Boolean(apiKey));
+    console.log('API key exists:', !!apiKey);
 
     if (!apiKey) {
       return res.status(500).json({ error: 'Missing GEMINI_API_KEY' });
     }
 
     const gemini = new GoogleGenerativeAI(apiKey);
-    const model = gemini.getGenerativeModel({ model: 'gemini-1.5-pro-latest' });
+    const model = gemini.getGenerativeModel({
+      model: 'gemini-1.5-pro-latest'
+    });
 
-    console.log('Sending prompt to Gemini...');
+    console.log('Calling Gemini...');
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
-    console.log('Gemini response received');
+    console.log('Success');
 
     return res.status(200).json({
       success: true,
       text
     });
+
   } catch (error) {
-    console.error('Generate API error:', error);
+    console.error('ERROR:', error);
 
     return res.status(500).json({
       success: false,
-      error: error?.message || String(error),
-      stack: error?.stack || null
+      error: error.message,
+      stack: error.stack
     });
   }
 }
