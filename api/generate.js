@@ -10,41 +10,89 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "POST only" });
+    return res.status(405).json({
+      success: false,
+      error: "POST only"
+    });
   }
 
   try {
     const { prompt } = req.body || {};
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: "Missing server API key" });
+    if (!apiKey) {
+      return res.status(500).json({
+        success: false,
+        error: "Missing GEMINI_API_KEY in Vercel environment variables"
+      });
     }
 
-    if (!prompt) {
-      return res.status(400).json({ error: "Missing prompt" });
+    if (!prompt || !prompt.trim()) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing prompt"
+      });
     }
 
-    const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
-    });
+    const ai = new GoogleGenAI({ apiKey });
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-pro",
       contents: `
-Create a Next.js website for: "${prompt}"
+Create a production-ready Next.js website for this request:
 
-Return files in this exact format:
+"${prompt}"
+
+Return ONLY file blocks in this exact format:
 
 File: package.json
 \`\`\`json
-{ "name": "site", "dependencies": { "next": "14", "react": "^18", "react-dom": "^18" } }
+{
+  "name": "site",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
+\`\`\`
+
+File: app/layout.tsx
+\`\`\`tsx
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
 \`\`\`
 
 File: app/page.tsx
 \`\`\`tsx
-export default function Home() { return <div>Hello</div>; }
+export default function Home() {
+  return <main>Hello</main>;
+}
 \`\`\`
-`,
+
+If needed, also include additional files such as:
+- app/globals.css
+- components/*
+- lib/*
+- public/*
+
+Rules:
+- Use Next.js App Router
+- Make the design modern and responsive
+- Keep the code production-ready
+- Do not write any explanation outside file blocks
+`
     });
 
     const text = response.text || "";
@@ -63,14 +111,14 @@ export default function Home() { return <div>Hello</div>; }
 
     return res.status(200).json({
       success: true,
-      files,
+      files
     });
   } catch (error) {
     console.error("API /api/generate failed:", error);
 
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : "Unknown server error"
     });
   }
 }
